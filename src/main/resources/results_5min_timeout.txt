@@ -1,0 +1,183 @@
+Graph: c-fat200-1
+Best founded solution: 12
+Heuristic solution: 12
+Interrupted: False
+Elapsed time: 5,08 seconds
+Variables: [1, 2, 38, 39, 75, 76, 112, 113, 149, 150, 186, 187]
+==========================
+Graph: c-fat200-2
+Best founded solution: 24
+Heuristic solution: 24
+Interrupted: False
+Elapsed time: 0,62 seconds
+Variables: [1, 2, 19, 20, 37, 38, 55, 56, 73, 74, 91, 92, 109, 110, 127, 128, 145, 146, 163, 164, 181, 182, 199, 200]
+==========================
+Graph: c-fat200-5
+Best founded solution: 58
+Heuristic solution: 58
+Interrupted: False
+Elapsed time: 9,98 seconds
+Variables: [3, 10, 11, 17, 24, 31, 32, 38, 46, 52, 53, 59, 60, 66, 67, 73, 74, 87, 88, 95, 101, 102, 108, 109, 116, 123, 129, 130, 136, 137, 143, 144, 150, 151, 157, 158, 164, 165, 171, 172, 178, 179, 185, 186, 192, 193, 199, 200]
+==========================
+Graph: c-fat500-1
+Best founded solution: 14
+Heuristic solution: 14
+Interrupted: True
+Elapsed time: 302,77 seconds
+Variables: [5, 6, 85, 86, 165, 166, 245, 246, 325, 326, 405, 406, 485, 486]
+==========================
+Graph: c-fat500-10
+Best founded solution: 126
+Heuristic solution: 126
+Interrupted: False
+Elapsed time: 1,07 seconds
+Variables: [3, 4, 12, 20, 27, 35, 36, 43, 44, 51, 52, 59, 67, 75, 92, 100, 107, 108, 123, 124, 131, 132, 139, 148, 155, 156, 163, 164, 171, 172, 179, 180, 188, 195, 196, 203, 204, 211, 212, 219, 220, 227, 228, 235, 236, 243, 244, 251, 260, 267, 268, 275, 283, 284, 291, 292, 299, 300, 307, 315, 323, 332, 339, 347, 355, 356, 364, 371, 380, 388, 395, 396, 411, 412, 420, 428, 444, 451, 452, 460, 467, 468, 475, 483, 491, 499, 500]
+==========================
+Graph: c-fat500-2
+Best founded solution: 26
+Heuristic solution: 26
+Interrupted: True
+Elapsed time: 302,83 seconds
+Variables: [1, 2, 41, 42, 81, 82, 121, 122, 161, 162, 201, 202, 241, 242, 281, 282, 321, 322, 361, 362, 401, 402, 441, 442, 481, 482]
+==========================
+Graph: c-fat500-5
+Best founded solution: 64
+Heuristic solution: 64
+Interrupted: False
+Elapsed time: 5,47 seconds
+Variables: [3, 4, 19, 20, 35, 36, 51, 52, 67, 68, 83, 84, 99, 100, 115, 116, 131, 132, 147, 148, 163, 164, 179, 180, 195, 196, 211, 212, 227, 228, 243, 244, 259, 260, 275, 276, 291, 292, 307, 308, 323, 324, 339, 340, 355, 356, 371, 372, 387, 388, 403, 404, 419, 420, 435, 436, 451, 452, 467, 468, 483, 484, 499, 500]
+==========================
+Graph: MANN_a9
+Best founded solution: 16
+Heuristic solution: 16
+Interrupted: False
+Elapsed time: 0,00 seconds
+Variables: [1, 2, 3, 4, 5, 15, 17, 21, 24, 26, 30, 33, 36, 39, 42, 45]
+==========================
+Graph: hamming6-2
+Best founded solution: 32
+Heuristic solution: 32
+Interrupted: False
+Elapsed time: 0,00 seconds
+Variables: [2, 3, 5, 8, 9, 12, 14, 15, 17, 20, 22, 23, 26, 27, 29, 32, 33, 36, 38, 39, 42, 43, 45, 48, 50, 51, 53, 56, 57, 60, 62, 63]
+==========================
+Graph: hamming6-4
+Best founded solution: 4
+Heuristic solution: 4
+Interrupted: False
+Elapsed time: 0,62 seconds
+Variables: [1, 16, 55, 58]
+==========================
+Graph: gen200_p0.9_44
+Best founded solution: 36
+Heuristic solution: 40
+Interrupted: True
+Elapsed time: 300,00 seconds
+Variables: [2, 4, 6, 8, 10, 14, 21, 24, 28, 33, 39, 44, 49, 52, 55, 65, 73, 86, 88, 95, 100, 103, 107, 111, 145, 146, 156, 162, 167, 168, 173, 175, 177, 184, 185, 199]
+==========================
+Graph: gen200_p0.9_55
+Best founded solution: 38
+Heuristic solution: 37
+Interrupted: True
+Elapsed time: 300,01 seconds
+Variables: [10, 20, 28, 29, 38, 45, 53, 55, 61, 66, 70, 72, 74, 91, 101, 104, 105, 109, 110, 121, 122, 136, 140, 141, 152, 154, 160, 161, 166, 172, 173, 174, 176, 181, 185, 187, 197, 198]
+==========================
+Graph: san200_0.7_1
+Best founded solution: 16
+Heuristic solution: 16
+Interrupted: True
+Elapsed time: 300,02 seconds
+Variables: [1, 3, 4, 15, 32, 38, 44, 72, 79, 81, 93, 128, 155, 191, 198, 199]
+==========================
+Graph: san200_0.7_2
+Best founded solution: 18
+Heuristic solution: 15
+Interrupted: True
+Elapsed time: 300,02 seconds
+Variables: [4, 6, 13, 15, 23, 26, 37, 51, 68, 70, 111, 117, 162, 164, 179, 180, 192, 199]
+==========================
+Graph: san200_0.9_1
+Best founded solution: 70
+Heuristic solution: 47
+Interrupted: False
+Elapsed time: 0,03 seconds
+Variables: [1, 2, 5, 7, 8, 11, 15, 16, 21, 22, 23, 24, 26, 27, 32, 33, 38, 39, 40, 43, 48, 53, 54, 56, 60, 61, 62, 68, 69, 71, 77, 80, 92, 93, 94, 104, 108, 109, 110, 119, 120, 121, 125, 136, 142, 146, 147, 151, 155, 158, 159, 160, 162, 163, 164, 165, 167, 170, 171, 172, 173, 176, 183, 186, 187, 189, 193, 195, 198, 200]
+==========================
+Graph: san200_0.9_2
+Best founded solution: 33
+Heuristic solution: 39
+Interrupted: True
+Elapsed time: 300,00 seconds
+Variables: [3, 13, 25, 29, 31, 32, 34, 44, 47, 54, 57, 65, 66, 77, 81, 95, 103, 115, 117, 140, 141, 145, 146, 151, 154, 156, 177, 181, 183, 187, 191, 192, 196]
+==========================
+Graph: san200_0.9_3
+Best founded solution: 37
+Heuristic solution: 34
+Interrupted: True
+Elapsed time: 300,00 seconds
+Variables: [8, 14, 17, 20, 27, 34, 37, 40, 44, 47, 49, 67, 68, 74, 78, 80, 87, 89, 100, 101, 102, 105, 111, 113, 117, 119, 126, 131, 132, 142, 143, 159, 162, 183, 192, 195, 197]
+==========================
+Graph: sanr200_0.7
+Best founded solution: 16
+Heuristic solution: 16
+Interrupted: True
+Elapsed time: 300,01 seconds
+Variables: [2, 29, 44, 46, 54, 66, 81, 86, 93, 108, 124, 132, 150, 154, 180, 189]
+==========================
+Graph: C125.9
+Best founded solution: 34
+Heuristic solution: 31
+Interrupted: False
+Elapsed time: 20,40 seconds
+Variables: [5, 9, 11, 14, 17, 19, 25, 29, 31, 34, 40, 44, 45, 49, 52, 55, 65, 66, 67, 70, 77, 79, 80, 91, 96, 98, 99, 103, 104, 110, 114, 117, 122, 125]
+==========================
+Graph: keller4
+Best founded solution: 11
+Heuristic solution: 11
+Interrupted: True
+Elapsed time: 300,08 seconds
+Variables: [5, 27, 36, 56, 58, 75, 84, 134, 153, 162, 166]
+==========================
+Graph: brock200_1
+Best founded solution: 17
+Heuristic solution: 18
+Interrupted: True
+Elapsed time: 300,02 seconds
+Variables: [20, 24, 26, 41, 53, 79, 80, 81, 83, 89, 93, 126, 149, 151, 192, 198, 199]
+==========================
+Graph: brock200_2
+Best founded solution: 10
+Heuristic solution: 9
+Interrupted: True
+Elapsed time: 300,11 seconds
+Variables: [10, 24, 54, 107, 126, 144, 151, 173, 181, 182]
+==========================
+Graph: brock200_3
+Best founded solution: 13
+Heuristic solution: 13
+Interrupted: True
+Elapsed time: 300,02 seconds
+Variables: [6, 9, 21, 25, 75, 99, 109, 125, 134, 135, 144, 151, 195]
+==========================
+Graph: brock200_4
+Best founded solution: 14
+Heuristic solution: 13
+Interrupted: True
+Elapsed time: 300,03 seconds
+Variables: [15, 28, 40, 46, 79, 85, 99, 107, 141, 158, 159, 164, 172, 200]
+==========================
+Graph: p_hat300-1
+Best founded solution: 7
+Heuristic solution: 7
+Interrupted: True
+Elapsed time: 300,23 seconds
+Variables: [16, 19, 75, 81, 174, 204, 255]
+==========================
+Graph: p_hat300-2
+Best founded solution: 23
+Heuristic solution: 24
+Interrupted: True
+Elapsed time: 300,02 seconds
+Variables: [4, 13, 35, 38, 44, 48, 56, 76, 89, 111, 139, 159, 174, 190, 199, 205, 231, 259, 270, 273, 290, 293, 296]
+==========================
+

@@ -7,7 +7,6 @@ import ilog.concert.IloRange;
 import ilog.cplex.IloCplex;
 import org.apache.commons.math.util.MathUtils;
 import org.graphstream.algorithm.coloring.WelshPowell;
-import org.graphstream.graph.Element;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
@@ -31,10 +30,10 @@ public class CPLEXExample {
     private static final double EPSI = 10e-6;
     private static double startTime;
     private static double interruptTime;
-    private static String[] testData = {"c-fat200-1", "c-fat200-2", "c-fat200-5", "c-fat500-1", "c-fat500-10",
+    private static String[] testData = {"c-fat200-1", "c-fat200-2", "c-fat200-5", /*"c-fat500-1", "c-fat500-10",
             "c-fat500-2", "c-fat500-5", "MANN_a9", "hamming6-2", "hamming6-4", "gen200_p0.9_44", "gen200_p0.9_55",
             "san200_0.7_1", "san200_0.7_2", "san200_0.9_1", "san200_0.9_2", "san200_0.9_3", "sanr200_0.7", "C125.9",
-            "keller4", "brock200_1", "brock200_2", "brock200_3", "brock200_4", "p_hat300-1", "p_hat300-2"};
+            "keller4", "brock200_1", "brock200_2", "brock200_3", "brock200_4", "p_hat300-1", "p_hat300-2"*/};
 
     private static IloCplex cplex;
     private static Graph graph;
@@ -47,7 +46,6 @@ public class CPLEXExample {
 
     public static void main(String[] args) throws IOException {
         log.setLevel(Level.OFF);
-        //File ouputFile = createOuputFile();
         for (String fileName : testData) {
             boolean interrupted = false;
             try {
@@ -75,15 +73,18 @@ public class CPLEXExample {
                 String str = stringBuilder.toString();
                 Files.write(Paths.get("src\\main\\resources\\results.txt"), str.getBytes(), StandardOpenOption.APPEND);
                 System.out.println(str);
-
-                bestSolution = 0;
-                heuristicSolution = 0;
-                bestVariables = null;
-                graph = null;
-                cplex = null;
-                coloredSortedNodes = null;
+                reset();
             }
         }
+    }
+
+    public static void reset() {
+        bestSolution = 0;
+        heuristicSolution = 0;
+        bestVariables = null;
+        graph = null;
+        cplex = null;
+        coloredSortedNodes = null;
     }
 
     public static void solveGraph(String file) throws InterruptedException {
@@ -110,8 +111,8 @@ public class CPLEXExample {
         if (log.isLoggable(Level.INFO)) {
             log.info(String.format("New solution = %f, best solution = %d", newObjective, bestSolution));
         }
-        //for some graphs heuristic find max clique size but variables not updated
-        if (isWorseSolution(newObjective) && bestVariables != null) {
+
+        if (isWorseSolution(newObjective)) {
             if (log.isLoggable(Level.FINE)) {
                 log.fine("New solution is worse. Return.");
             }
@@ -176,9 +177,7 @@ public class CPLEXExample {
         Set<Node> K = new HashSet<>();
         while (graphCopy.getNodeCount() > 0) {
             int indexOfMaxDegree = StreamSupport.stream(graphCopy.spliterator(), false)
-                    .sorted(Comparator.comparingInt(Node::getDegree).reversed())
-                    .map(Element::getIndex)
-                    .findFirst().orElse(-1);
+                    .max(Comparator.comparingInt(Node::getDegree)).map(Node::getIndex).orElse(-1);
             if (indexOfMaxDegree != -1 && !K.contains(graphCopy.getNode(indexOfMaxDegree))) {
                 K.add(graphCopy.getNode(indexOfMaxDegree));
                 Set<Node> nodesToRemove = new HashSet<>();
@@ -193,6 +192,12 @@ public class CPLEXExample {
             }
         }
         heuristicSolution = K.size();
+        bestVariables = new double[graph.getNodeCount()];
+        for (int i = 0; i < bestVariables.length; i++) {
+            int finalI = i;
+            bestVariables[i] = K.stream().anyMatch(node -> (Integer.parseInt(node.getId()) - 1) == finalI) ? 1 : 0;
+        }
+
         return K.size();
     }
 

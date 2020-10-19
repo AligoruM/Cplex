@@ -26,10 +26,3 @@
 |brock200_4     |16             |13         |True           |3600,15
 |p_hat300-1     |8              |7          |False          |3218,08
 |p_hat300-2     |25             |23         |True           |3600,07
-
-
-Graph: p_hat300-2
-Best founded solution: 25
-Heuristic solution: 23
-Interrupted: True
-Elapsed time: 3600,07 seconds

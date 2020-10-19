@@ -12,7 +12,9 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -41,7 +43,6 @@ public class CPLEXExample {
     private static int heuristicSolution = 0;
     private static double[] bestVariables;
     private static IloNumVar[] x;
-    private static byte[][] adjacencyMatrix;
     private static List<Node> coloredSortedNodes;
 
     public static void main(String[] args) throws IOException {
@@ -78,7 +79,6 @@ public class CPLEXExample {
                 bestSolution = 0;
                 heuristicSolution = 0;
                 bestVariables = null;
-                adjacencyMatrix = null;
                 graph = null;
                 cplex = null;
                 coloredSortedNodes = null;
@@ -89,7 +89,6 @@ public class CPLEXExample {
     public static void solveGraph(String file) throws InterruptedException {
         try {
             graph = loadGraph(file);
-            initAdjacencyMatrix();
             x = initModel();
             bestSolution = heuristic();
             startTime = System.currentTimeMillis();
@@ -278,15 +277,14 @@ public class CPLEXExample {
     public static List<Set<Node>> findIndependentSets(Node inputNode) {
         Set<Node> newSet = new HashSet<>();
         LinkedList<Set<Node>> allSets = new LinkedList<>();
-        byte[][] matrix = adjacencyMatrix.clone();
+        Set<Node> usedNodes = new HashSet<>();
         while (true) {
             for (Node node : newSet) {
                 if (inputNode.getIndex() != node.getIndex()) {
-                    matrix[inputNode.getIndex()][node.getIndex()] = 1;
-                    matrix[node.getIndex()][inputNode.getIndex()] = 1;
+                    usedNodes.add(node);
                 }
             }
-            newSet = getMaximalIndependentSet(matrix, inputNode);
+            newSet = getMaximalIndependentSet(usedNodes, inputNode);
             if (newSet.size() <= 1) {
                 break;
             }
@@ -296,45 +294,35 @@ public class CPLEXExample {
         return allSets;
     }
 
-    public static Set<Node> getMaximalIndependentSet(byte[][] matrix, Node inputNode) {
+    public static Set<Node> getMaximalIndependentSet(Set<Node> usedNodes, Node inputNode) {
         HashSet<Node> independentNodes = new HashSet<>();
         independentNodes.add(inputNode);
         HashSet<Node> availableNodes = new HashSet<>();
-        for (int i = inputNode.getIndex(); i < matrix.length; i++) {
+        for (int i = inputNode.getIndex(); i < graph.getNodeCount(); i++) {
             availableNodes.add(graph.getNode(i));
         }
 
-        HashSet<Node> neighbors = getNeighbors(inputNode, availableNodes, matrix);
+        HashSet<Node> neighbors = getNeighbors(inputNode, availableNodes, usedNodes);
 
         Set<Node> notNeighbors = new HashSet<>(Sets.difference(availableNodes, Sets.union(neighbors, independentNodes)));
 
         while (notNeighbors.size() > 0) {
             Node node = notNeighbors.iterator().next();
             independentNodes.add(node);
-            notNeighbors.removeAll(Sets.union(getNeighbors(node, availableNodes, matrix), independentNodes));
+            notNeighbors.removeAll(Sets.union(getNeighbors(node, availableNodes, usedNodes), independentNodes));
         }
 
         return independentNodes;
     }
 
-    public static HashSet<Node> getNeighbors(Node inputNode, HashSet<Node> availableNodes, byte[][] matrix) {
+    public static HashSet<Node> getNeighbors(Node inputNode, HashSet<Node> availableNodes, Set<Node> usedNodes) {
         HashSet<Node> neighbors = new HashSet<>();
         for (Node node : availableNodes) {
-            if (matrix[node.getIndex()][inputNode.getIndex()] == 1) {
+            if (inputNode.hasEdgeBetween(node) || usedNodes.contains(node)) {
                 neighbors.add(node);
             }
         }
         return neighbors;
-    }
-
-    public static void initAdjacencyMatrix() {
-        int n = graph.getNodeCount();
-        adjacencyMatrix = new byte[n][n];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                adjacencyMatrix[i][j] = (byte) (graph.getNode(i).hasEdgeBetween(j) ? 1 : 0);
-            }
-        }
     }
 
     public static boolean isIntegerSolution(double[] solution) {

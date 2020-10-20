@@ -23,10 +23,10 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class CPLEXExample {
+public class CplexBnB {
 
     private static final int TIME_LIMIT_MINUTE = 60;
-    private static final Logger log = Logger.getLogger(CPLEXExample.class.getName());
+    private static final Logger log = Logger.getLogger(CplexBnB.class.getName());
     private static final double EPSI = 10e-6;
     private static double startTime;
     private static double interruptTime;
@@ -49,8 +49,7 @@ public class CPLEXExample {
         for (String fileName : testData) {
             boolean interrupted = false;
             try {
-                System.out.println("loading file " + fileName);
-                solveGraph(fileName);
+                solve(fileName);
             } catch (InterruptedException e) {
                 interrupted = true;
             } finally {
@@ -87,7 +86,7 @@ public class CPLEXExample {
         coloredSortedNodes = null;
     }
 
-    public static void solveGraph(String file) throws InterruptedException {
+    public static void solve(String file) throws InterruptedException {
         try {
             graph = loadGraph(file);
             x = initModel();

@@ -18,22 +18,23 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.function.ToDoubleFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class CplexBnB {
+public class CplexBnC {
 
     private static final int TIME_LIMIT_MINUTE = 60;
-    private static final Logger log = Logger.getLogger(CplexBnB.class.getName());
+    private static final Logger log = Logger.getLogger(CplexBnC.class.getName());
     private static final double EPSI = 10e-6;
     private static double startTime;
     private static double interruptTime;
-    private static String[] testData = {"c-fat200-1", "c-fat200-2", "c-fat200-5", "c-fat500-1", "c-fat500-10",
-            "c-fat500-2", "c-fat500-5", "MANN_a9", "hamming6-2", "hamming6-4", "gen200_p0.9_44", "gen200_p0.9_55",
-            "san200_0.7_1", "san200_0.7_2", "san200_0.9_1", "san200_0.9_2", "san200_0.9_3", "sanr200_0.7", "C125.9",
-            "keller4", "brock200_1", "brock200_2", "brock200_3", "brock200_4", "p_hat300-1", "p_hat300-2"};
+    private static String[] testData = {/*"c-fat200-1", "c-fat200-2", "c-fat200-5", "c-fat500-1", "c-fat500-10",
+            "c-fat500-2", "c-fat500-5", "MANN_a9", "hamming6-2", "hamming6-4",*/ "gen200_p0.9_44", /*"gen200_p0.9_55",*/
+            "san200_0.7_1", /*"san200_0.7_2", "san200_0.9_1", "san200_0.9_2",*/ "san200_0.9_3", "sanr200_0.7"/*, "C125.9",
+            "keller4", "brock200_1", "brock200_2", "brock200_3", "brock200_4", "p_hat300-1", "p_hat300-2"*/};
 
     private static IloCplex cplex;
     private static Graph graph;
@@ -44,8 +45,10 @@ public class CplexBnB {
     private static IloNumVar[] x;
     private static List<Node> coloredSortedNodes;
 
+    private static Map<IloRange, Set<Node>> map = new HashMap<>();
+
     public static void main(String[] args) throws IOException {
-        log.setLevel(Level.OFF);
+        log.setLevel(Level.INFO);
         for (String fileName : testData) {
             boolean interrupted = false;
             try {
@@ -84,33 +87,30 @@ public class CplexBnB {
         graph = null;
         cplex = null;
         coloredSortedNodes = null;
+        map.clear();
     }
 
     public static void solve(String file) throws InterruptedException {
         try {
             graph = loadGraph(file);
             x = initModel();
-            bestSolution = heuristic();
+            bestSolution = initialHeuristic();
             startTime = System.currentTimeMillis();
             interruptTime = startTime + (TIME_LIMIT_MINUTE * 60 * 1000);
-            BnB();
+            BnC();
         } catch (IloException e) {
             e.printStackTrace();
         }
     }
 
-    public static void BnB() throws IloException, InterruptedException {
+    public static void BnC() throws IloException, InterruptedException {
         if (System.currentTimeMillis() >= interruptTime) {
             throw new InterruptedException();
         }
-
         cplex.solve();
+        System.out.println("size = " + map.size());
         double newObjective = cplex.getObjValue();
-        double[] newVariables = cplex.getValues(x);
-        if (log.isLoggable(Level.INFO)) {
-            log.info(String.format("New solution = %f, best solution = %d", newObjective, bestSolution));
-        }
-
+        double[] newVariables;
         if (isWorseSolution(newObjective)) {
             if (log.isLoggable(Level.FINE)) {
                 log.fine("New solution is worse. Return.");
@@ -118,6 +118,39 @@ public class CplexBnB {
             return;
         }
 
+        double prevScore = Double.MAX_VALUE;
+        double[] separateVariables = cplex.getValues(x);
+        double separateObjective = cplex.getObjValue();
+        while (true) {
+            //System.out.println(Arrays.toString(separateVariables));
+            System.out.println(separateObjective);
+            Set<Node> constraints = separate(separateVariables);
+            System.out.println(constraints);
+            if (constraints != null) {
+                addConstraint(constraints, x);
+            } else {
+                break;
+            }
+            cplex.solve();
+            double z = cplex.getObjValue();
+            if (isWorseSolution(z)) {
+                return;
+            }
+            if (prevScore - z < 0.001) {
+                System.out.println(String.format("Bad: %f", prevScore - z));
+                break;
+            } else {
+                prevScore = z;
+                separateObjective = cplex.getObjValue();
+                separateVariables = cplex.getValues(x);
+            }
+
+        }
+        newObjective = cplex.getObjValue();
+        newVariables = cplex.getValues(x);
+        if (log.isLoggable(Level.INFO)) {
+            log.info(String.format("New solution = %f, best solution = %d", newObjective, bestSolution));
+        }
 
         if (isIntegerSolution(newVariables)) {
             if (log.isLoggable(Level.INFO)) {
@@ -128,18 +161,36 @@ public class CplexBnB {
             return;
         }
 
+/*        if (map.size() > CONST_LIMIT_MINUTE) {
+            List<IloRange> collect = map.keySet().stream().sorted(Comparator.comparingDouble((ToDoubleFunction<IloRange>) iloRange -> {
+                try {
+                    return cplex.getSlack(iloRange);
+                } catch (IloException e) {
+                    e.printStackTrace();
+                    return -1;
+                }
+            }).reversed()).collect(Collectors.toList());
+
+            for (int i = 0; i < collect.size() - CONST_LIMIT_MINUTE; i++) {
+                IloRange iloRange = collect.get(i);
+                //System.out.println(String.format("slack = %f, removing \n %s", cplex.getSlack(iloRange), iloRange));
+                cplex.remove(iloRange);
+                map.remove(iloRange);
+            }
+        }*/
+
         int iForBranching = branching(newVariables);
         if (log.isLoggable(Level.FINE)) {
             log.fine(String.format("Branching by %d", iForBranching));
         }
         IloRange UB = addBound(iForBranching, newVariables, true);
-        BnB();
+        BnC();
         cplex.remove(UB);
         if (log.isLoggable(Level.FINE)) {
             log.fine(String.format("Constraint removed by %s", UB.toString()));
         }
         IloRange LB = addBound(iForBranching, newVariables, false);
-        BnB();
+        BnC();
         cplex.remove(LB);
         if (log.isLoggable(Level.FINE)) {
             log.fine(String.format("Constraint removed by %s", LB.toString()));
@@ -170,7 +221,7 @@ public class CplexBnB {
         return constraint;
     }
 
-    public static int heuristic() {
+    public static int initialHeuristic() {
         Cloner cloner = new Cloner();
         Graph graphCopy = cloner.deepClone(graph);
         Set<Node> K = new HashSet<>();
@@ -224,16 +275,7 @@ public class CplexBnB {
 
             List<Set<Node>> independentSets = findIndependentSets(graph.getNode(i));
             for (Set<Node> independentSet : independentSets) {
-                List<Integer> indexes = independentSet.stream().map(Node::getIndex).collect(Collectors.toList());
-                IloNumExpr[] exprs = new IloNumExpr[graph.getNodeCount()];
-                for (int j = 0; j < graph.getNodeCount(); j++) {
-                    exprs[j] = cplex.prod(xNumVars[j], indexes.contains(j) ? 1 : 0);
-                }
-                IloRange range = cplex.range(0, cplex.sum(exprs), 1);
-                cplex.add(range);
-                if (log.isLoggable(Level.INFO)) {
-                    log.info(String.format("Added indep set constraints %s", range));
-                }
+                addConstraint(independentSet, xNumVars);
             }
         }
 
@@ -242,6 +284,23 @@ public class CplexBnB {
         cplex.add(xNumVars);
         cplex.add(cplex.maximize(cplex.sum(xNumVars)));
         return xNumVars;
+    }
+
+    public static void addConstraint(Set<Node> independentSet, IloNumVar[] x) throws IloException {
+        for (Set<Node> constraint : map.values()) {
+            if (constraint.containsAll(independentSet)) {
+                System.out.println("contains");
+                return;
+            }
+        }
+        List<Integer> indexes = independentSet.stream().map(Node::getIndex).collect(Collectors.toList());
+        IloNumExpr[] exprs = new IloNumExpr[graph.getNodeCount()];
+        for (int j = 0; j < graph.getNodeCount(); j++) {
+            exprs[j] = cplex.prod(x[j], indexes.contains(j) ? 1 : 0);
+        }
+        IloRange range = cplex.range(0, cplex.sum(exprs), 1);
+        cplex.add(range);
+        map.put(range, independentSet);
     }
 
     public static Graph loadGraph(String fileName) {
@@ -319,7 +378,39 @@ public class CplexBnB {
         return independentNodes;
     }
 
-    public static HashSet<Node> getNeighbors(Node inputNode, HashSet<Node> availableNodes, Set<Node> usedNodes) {
+    public static Set<Node> separate(final double[] currentSolution) {
+        long startTime = System.currentTimeMillis();
+        //Set<Set<Node>> constr = new HashSet<>();
+        //Map<String, Object> result = getWeightedIndependentSet(currentSolution);
+        PriorityQueue<Node> queue = createQueue(currentSolution);
+        Collection<Node> availableNodes = graph.getNodeSet();
+        Set<Node> set = new HashSet<>();
+        Node node = queue.poll();
+        double sum = 0D;
+        while (node != null) {
+            set.add(node);
+            sum += currentSolution[node.getIndex()];
+            HashSet<Node> neighbors = getNeighbors(node, availableNodes, new HashSet<>());
+            queue.removeAll(neighbors);
+            node = queue.poll();
+        }
+        System.out.println(String.format("Separate time: %d seconds, sum %s\n", (System.currentTimeMillis() - startTime), sum));
+        System.out.println(set);
+        if (MathUtils.compareTo(sum, 1, EPSI) > 0) {
+            return set;
+        } else {
+            return null;
+        }
+    }
+
+    public static PriorityQueue<Node> createQueue(double[] currentSolution) {
+        PriorityQueue<Node> queue = new PriorityQueue<>(currentSolution.length,
+                Comparator.comparingDouble((ToDoubleFunction<Node>) vertex -> currentSolution[vertex.getIndex()] / vertex.getDegree()).reversed());
+        queue.addAll(graph.getNodeSet());
+        return queue;
+    }
+
+    public static HashSet<Node> getNeighbors(Node inputNode, Collection<Node> availableNodes, Set<Node> usedNodes) {
         HashSet<Node> neighbors = new HashSet<>();
         for (Node node : availableNodes) {
             if (inputNode.hasEdgeBetween(node) || usedNodes.contains(node)) {
@@ -331,12 +422,16 @@ public class CplexBnB {
 
     public static boolean isIntegerSolution(double[] solution) {
         for (double var : solution) {
-            long rounded = Math.round(var);
-            if (MathUtils.compareTo(rounded, var, EPSI) != 0) {
+            if (!isCloseToInteger(var)) {
                 return false;
             }
         }
         return true;
+    }
+
+    public static boolean isCloseToInteger(double var) {
+        long rounded = Math.round(var);
+        return MathUtils.compareTo(rounded, var, EPSI) == 0;
     }
 
     public static boolean isWorseSolution(double newSolution) {
